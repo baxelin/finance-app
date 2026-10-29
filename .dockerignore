@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+**/*.db
+**/*.db-journal
+**/.git
+**/.gitignore
+**/.vscode
+**/.DS_Store
+**/npm-debug.log*
+**/coverage
+.github
+README.md

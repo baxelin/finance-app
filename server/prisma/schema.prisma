@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id   Int    @id @default(autoincrement())
+  name String
+  type String // individual | joint
+  owner String?
+
+  transactions            Transaction[] @relation("AccountTransactions")
+  destinationTransactions Transaction[] @relation("DestinationAccountTransactions")
+  creditCards              CreditCard[]
+  investments              Investment[]
+  recurrenceRules          RecurrenceRule[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  parentId  Int?
+  parent    Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryHierarchy")
+  type      String // income | expense
+  isDefault Boolean   @default(false)
+  icon      String    @default("tag")
+  color     String    @default("#64748b")
+
+  transactions    Transaction[]
+  recurrenceRules RecurrenceRule[]
+  budget          Budget?
+  importRules     ImportRule[]
+}
+
+model CreditCard {
+  id         Int    @id @default(autoincrement())
+  name       String
+  accountId  Int
+  account    Account @relation(fields: [accountId], references: [id])
+  closingDay Int
+  dueDay     Int
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  type        String // income | expense | transfer
+  description String
+  amount      Float
+  date        DateTime
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  accountId Int
+  account   Account @relation("AccountTransactions", fields: [accountId], references: [id])
+
+  creditCardId Int?
+  creditCard   CreditCard? @relation(fields: [creditCardId], references: [id])
+
+  destinationAccountId Int?
+  destinationAccount   Account? @relation("DestinationAccountTransactions", fields: [destinationAccountId], references: [id])
+
+  status String @default("pending") // pending | confirmed
+
+  recurrenceRuleId Int?
+  recurrenceRule   RecurrenceRule? @relation(fields: [recurrenceRuleId], references: [id])
+
+  installmentGroupId String?
+  installmentNumber  Int?
+  installmentTotal   Int?
+
+  competenceDate DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accountId])
+  @@index([creditCardId])
+  @@index([competenceDate])
+  @@index([installmentGroupId])
+  @@index([recurrenceRuleId])
+}
+
+model RecurrenceRule {
+  id          Int       @id @default(autoincrement())
+  frequency   String // daily | every_4_days | weekly | biweekly | monthly | quarterly | semiannual | annual
+  startDate   DateTime
+  endDate     DateTime?
+  autoConfirm Boolean   @default(false)
+
+  description String
+  amount      Float
+  type        String // income | expense
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
+
+  transactions Transaction[]
+}
+
+model Investment {
+  id           Int    @id @default(autoincrement())
+  name         String
+  accountId    Int
+  account      Account @relation(fields: [accountId], references: [id])
+  currentValue Float
+
+  entries InvestmentEntry[]
+}
+
+model InvestmentEntry {
+  id           Int      @id @default(autoincrement())
+  investmentId Int
+  investment   Investment @relation(fields: [investmentId], references: [id])
+  value        Float
+  date         DateTime @default(now())
+}
+
+model Budget {
+  id           Int      @id @default(autoincrement())
+  categoryId   Int      @unique
+  category     Category @relation(fields: [categoryId], references: [id])
+  monthlyLimit Float
+}
+
+model ImportRule {
+  id          Int       @id @default(autoincrement())
+  matchKey    String    @unique
+  description String
+  type        String? // income | expense (not applicable to transfers)
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  updatedAt   DateTime  @updatedAt
+}

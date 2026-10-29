@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: finapp:latest
+    container_name: finapp
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: "file:../data/dev.db"
+    volumes:
+      - finapp_data:/app/server/data
+
+volumes:
+  finapp_data:

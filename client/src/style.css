@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-accent-50: #eff6ff;
+  --color-accent-100: #dbeafe;
+  --color-accent-400: #60a5fa;
+  --color-accent-500: #3b82f6;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4ed8;
+
+  --color-income-500: #22c55e;
+  --color-income-600: #16a34a;
+
+  --color-expense-500: #ef4444;
+  --color-expense-600: #dc2626;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f7f8;
+
+  --color-ink-900: #18181b;
+  --color-ink-800: #27272a;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface-muted text-slate-800 antialiased;
+  font-family: var(--font-sans);
+}
+
+@layer components {
+  .form-control {
+    @apply rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none;
+  }
+
+  .form-label {
+    @apply mb-1 block text-sm font-medium text-slate-600;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: theme(colors.slate.200);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
